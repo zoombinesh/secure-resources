@@ -14,7 +14,7 @@ class Secure_Resource_Utility {
             $name = basename( $file );
         }
         
-        if( empty( $type ) ) {
+        if( empty( $type ) && function_exists( 'mime_content_type' ) ) {
             $type = mime_content_type( $file );
         }
         
@@ -24,7 +24,11 @@ class Secure_Resource_Utility {
         header('Cache-Control: private', false);
         header('Content-Transfer-Encoding: binary');
         header('Content-Disposition: attachment; filename="'.$name.'";');
-        header('Content-Type: ' . $type);
+        
+        if( ! empty( $type ) ) {
+            header('Content-Type: ' . $type);
+        }
+        
         header('Content-Length: ' . filesize( $file ) );
     }
     

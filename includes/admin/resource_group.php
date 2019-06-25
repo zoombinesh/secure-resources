@@ -14,22 +14,26 @@ $resource_groups = Secure_Resource_Group::get_resource_groups();
 	            <th>Name</th>
 	            <th>Path</th>
 	            <th>User Role</th>
-	            <th width="100px">&nbsp;</th>
+	            <th>Active</th>
+	            <th width="150px">&nbsp;</th>
 	        </tr>
 	    </thead>
 	    <tbody>
 	    <?php
 	        foreach( $resource_groups as $rg ) {
-	            $show_files_link = admin_url( "admin-ajax.php?action=secure_resources&rg={$rg->get_id()}");
+	            $show_files_link = admin_url( "admin-ajax.php?height=700&action=secure_resources&rg={$rg->get_id()}");
 	            $edit_link = admin_url( "admin-ajax.php?action=secure_resources_edit&rg={$rg->get_id()}");
+	            $downloads_link = admin_url( "admin-ajax.php?action=secure_resources_downloads&rg={$rg->get_id()}");
 	    ?>
 	        <tr data-id='<?php echo $rg->get_id();?>'>
 	            <td class="cell-name"><?php echo $rg->get_name(); ?></td>
 	            <td class="cell-path"><?php echo $rg->get_path(); ?></td>
 	            <td class="cell-user-role"><?php echo $rg->get_user_role_display(); ?></td>
+	            <td class="cell-active"><?php echo $rg->is_active() ? '<span style="color:green;">Active</span>' : '<span style="color:red;">Inactive</span>'; ?></td>
 	            <td align="right">
 	                <a href="<?php echo $show_files_link;?>" class="dashicons dashicons-admin-page thickbox" title="Show Files" style="font-size:25px;"></a>
 	                <a href="<?php echo $edit_link;?>" class="dashicons dashicons-edit thickbox" title="Edit Resource Group" style="font-size:25px;"></a>
+	                <a href="<?php echo $downloads_link;?>" class="dashicons dashicons-download thickbox" title="Reset downloads" style="font-size:25px;"></a>
 	            </td>
 	        </tr>
 	    <?php

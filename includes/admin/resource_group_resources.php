@@ -9,7 +9,7 @@ if( count( $resources ) ) {
     <thead>
         <tr>
             <th width="150px"><strong>File</strong></th>
-            <th><strong>Shortcode</strong><br>
+            <th><strong>Shortcode / URL</strong><br>
             <span style="font-style:italic;">(Copy the shortcode below and paste it in the page to show download link)</span></th>
         </tr>
     </thead>
@@ -20,7 +20,10 @@ if( count( $resources ) ) {
 	    ?>
 	        <tr>
 	            <td><?php echo $resource; ?></td>
-	            <td><?php echo $shortcode; ?></td>
+	            <td>
+	                <?php echo $shortcode; ?><br>
+	                <?php echo $rg->get_resource_link( $resource ); ?>
+	            </td>
 	        </tr>
 	    <?php
 	        }

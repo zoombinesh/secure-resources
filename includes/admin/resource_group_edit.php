@@ -7,7 +7,8 @@ $data = [
     'id' => '',
     'name' => '',
     'path' => '',
-    'user_role' => ''
+    'user_role' => '',
+    'active' => 0
 ];
 
 if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
@@ -15,6 +16,7 @@ if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
     $data['name'] = $rg->get_name();
     $data['path'] = $rg->get_path();
     $data['user_role'] = $rg->get_user_role();
+    $data['active'] = $rg->get_active();
 }
 ?>
 <style>
@@ -36,7 +38,7 @@ if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
         		<th scope="row"><label for="user_role">User Role </label></th>
         		<td>
             		<select name="user_role" id="user_role">
-            		    <option value="no_role">-Select-</option>
+            		    <option value="">-Select-</option>
             		<?php
     		            foreach ( $roles as $role => $role_name ) {
     					    $selected = $role == $data['user_role'] ? 'selected' : '';
@@ -49,6 +51,10 @@ if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
             		</select>
             		<p class="description">User role allowed to access these resources. If left blank the resource will not be accessible by anyone.</p>
         		</td>
+        	</tr>
+        	<tr class="form-field">
+        		<th scope="row"><label for="path">Active</th>
+        		<td><input name="active" type="checkbox" id="active" value="1" <?php echo 1 == $data['active'] ? 'checked' : '';?>></td>
         	</tr>
 	    </tbody>
 	</table>
@@ -79,6 +85,7 @@ if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
             e.preventDefault();
             $form = jQuery(this);
             var data = $form.serializeFormJSON();
+            
             jQuery.ajax({
               method: "POST",
               url: "<?php echo admin_url( 'admin-ajax.php?action=secure_resources_save' ); ?>",
@@ -91,8 +98,9 @@ if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
                     row = jQuery("table#resource-groups tr[data-id=<?php echo $data['id'];?>]");
                     row.find("td.cell-name").html(data.name);
                     row.find("td.cell-path").html(data.path);
-                    role = jQuery("#resource-group-edit-form #user_role").find("option[value="+data.user_role+"]").text();
+                    role = data.user_role == '' ? '' : jQuery("#resource-group-edit-form #user_role").find("option[value="+data.user_role+"]").text();
                     row.find("td.cell-user-role").html(role);
+                    row.find("td.cell-active").html(1 == data.active ? "<span style='color:green;'>Active</span>" : "<span style='color:red;'>Inactive</span>" );
                     <?php
                         }
                     ?>
@@ -117,7 +125,6 @@ if( isset( $rg ) && $rg instanceof Secure_Resource_Group ) {
                         alert(msg);
                     }
                 }
-                console.log(response);
             });
         });
     });

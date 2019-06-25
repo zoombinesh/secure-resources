@@ -81,14 +81,20 @@ add_action( "wp_ajax_secure_resources_add", function() {
 } );
 
 add_action( 'wp_ajax_secure_resources_save', function() {
-    if( empty( $_POST['id'] ) ) {
-        $rg = new Secure_Resource_Group( $_POST );
+    $data = [ 'active' => 0 ];
+    
+    $data = array_merge( $data, $_POST );
+    
+    if( empty( $data['id'] ) ) {
+        $rg = new Secure_Resource_Group( $data );
     }
     else {
-        $rg = Secure_Resource_Group::get_instance( $_POST['id'] );
+        $rg = Secure_Resource_Group::get_instance( $data['id'] );
         if( ! ( $rg instanceof Secure_Resource_Group ) ) {
             wp_send_json_error( ['error' => ['Invalid Resource Group'] ] );
         }
+        
+        $rg->set_data( $data );
     }
     $result = $rg->save();
     
@@ -99,3 +105,80 @@ add_action( 'wp_ajax_secure_resources_save', function() {
     wp_send_json_success();
     exit;
 } );
+
+add_action( 'wp_ajax_secure_resources_downloads', function() {
+    require_once PTC_SECURE_RESOURCES_PLUGIN_DIR . '/includes/admin/resource_group_downloads.php';
+    exit;
+} );
+
+add_action( 'wp_ajax_secure_resource_search_user', function() {
+    $users = [];
+    if( ! empty( $_POST['user'] ) ) {
+        $search_term = $_POST['user'];
+        $query = new WP_User_Query( array(
+            'search'         => '*'.esc_attr( $search_term ).'*',
+            'search_columns' => array(
+                'user_login',
+                'user_nicename',
+                'user_email',
+            ),
+            // 'meta_query' => array(
+            //     'relation' => 'OR',
+            //     array(
+            //         'key'     => 'first_name',
+            //         'value'   => $search_term,
+            //         'compare' => 'LIKE'
+            //     ),
+            //     array(
+            //         'key'     => 'last_name',
+            //         'value'   => $search_term,
+            //         'compare' => 'LIKE'
+            //     )
+            // )
+        ) );
+        $users_found = $query->get_results();
+        
+        foreach( $users_found as $user ) {
+            $user_info = get_userdata( $user->ID );
+            $users[] = [
+                'id' => $user->ID,
+                'name' => $user_info->first_name . ' ' . $user_info->last_name,
+                'email' => $user->user_email
+            ];
+        }
+        
+    }
+    
+    $data = ['users' => $users ];
+    wp_send_json_success( $data );
+    exit;
+} );
+
+add_action( 'wp_ajax_secure_resource_show_user_downloads', function() {
+    $resource_group_id = $_GET['rg'];
+    $user_id = $_GET['user'];
+    
+    // $downloads = [
+    //     ['file' => 'abc.mp3', 'date' => '2019-03-21'],
+    //     ['file' => 'xyz.zip', 'date' => '2019-03-22'],
+    // ];
+    $rg = Secure_Resource_Group::get_instance( $resource_group_id );
+    
+    $downloads = $rg->get_user_downloaded_files( $user_id );
+    
+    wp_send_json_success( $downloads );
+    exit;
+} );
+
+add_action( 'wp_ajax_secure_resource_reset_user_downloads',function(){
+    $resource_group_id = $_GET['rg'];
+    $user_id = $_GET['user'];
+    $file = $_GET['file'];
+    
+    $rg = Secure_Resource_Group::get_instance( $resource_group_id );
+    
+    $rg->reset_file_download( $user_id, $file );
+    
+    wp_send_json_success();
+    exit;
+});

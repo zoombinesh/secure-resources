@@ -58,6 +58,10 @@ add_action( 'init', function() {
         Secure_Resource_Utility::show_error_page( 'Invalid link' );
     }
     
+    if( ! $rg->is_active() ) {
+        Secure_Resource_Utility::show_error_page( 'Resource is not active.' );
+    }
+    
     if( ! $rg->has_resource( $item ) ) {
        Secure_Resource_Utility::show_error_page( 'Invalid link' );
     }
@@ -98,6 +102,8 @@ register_activation_hook( __FILE__, function() {
     	    `name` VARCHAR(100) NOT NULL , 
     	    `path` VARCHAR(100) NOT NULL , 
     	    `user_role` VARCHAR(40) NOT NULL , 
+    	    `active` TINYINT(1) NOT NULL DEFAULT 0,
+    	    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     	    PRIMARY KEY (`id`), 
     	    UNIQUE `secure_resource_group_path` (`path`)
 	    ) ENGINE = MyISAM;
