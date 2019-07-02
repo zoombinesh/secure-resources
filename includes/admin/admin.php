@@ -16,6 +16,17 @@ add_action( 'admin_menu', function() {
         'dashicons-admin-network', 
         10 
     );
+    
+    add_submenu_page(
+        'secure-resources', 
+        'Secure Resources Help Document', 
+        'Help', 
+        'administrator', 
+        'secure-resources-help', 
+        function() {
+            require_once PTC_SECURE_RESOURCES_PLUGIN_DIR . '/includes/admin/help.php';
+        }
+    );
 } );
 
 /**
